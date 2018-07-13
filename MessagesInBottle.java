@@ -1,6 +1,5 @@
-package com.company;
-
 import java.util.*;
+//still not working
 
 public class MessagesInBottle {
     public static HashSet<String> possibleCodes = new HashSet<>();
@@ -48,6 +47,7 @@ public class MessagesInBottle {
             if (letterCodes.contains(letterCode)) {
                 int letterIndex = letterCodes.indexOf(letterCode);
                 currentMessage.append(letters.get(letterIndex));
+                currentLength = 1;
                 solve(secretMessage,currentLength,i + 1,currentMessage);
                 if (i == secretMessage.length() - 1) {
                     possibleCodes.add(currentMessage.toString());
