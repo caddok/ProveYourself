@@ -27,18 +27,19 @@ public class Validate {
                 else if (charToCheck == '*') {
                     wildCardCounter++;
                 }
-                else if(charToCheck == ')' && bracketKeeper.empty()) {
-                    bracketKeeper.push(charToCheck);
-                    break;
-                }
                 else {
-                    char inStack = bracketKeeper.peek();
-                    if (inStack == '(') {
-                        bracketKeeper.pop();
+                    char inStack;
+                    if(!bracketKeeper.isEmpty()) {
+                        inStack = bracketKeeper.peek();
+                        if (inStack == '(') {
+                            bracketKeeper.pop();
+                        }
+                    }
+                    else {
+                        bracketKeeper.push(charToCheck);
                     }
                 }
             }
-
             if (bracketKeeper.empty()) {
                 System.out.println("yes");
             }

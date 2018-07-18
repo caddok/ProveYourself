@@ -6,3 +6,4 @@ Will be update with every solved problem
 3.Passwords - https://judge.telerikacademy.com/problem/05passwords
 4.Permutations - https://judge.telerikacademy.com/problem/01permutations
 5.Validate - https://judge.telerikacademy.com/problem/04validate
+6.Longest Univalue Path - https://leetcode.com/problems/longest-univalue-path/description/

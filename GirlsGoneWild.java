@@ -59,7 +59,7 @@ public class GirlsGoneWild {
             set.append(shirts.get(i));
             shirtsUsed.set(i, true);
             for (int j = 0; j < skirts.size(); j++) {
-                if (used.get(j) == true) {
+                if (used.get(j)) {
                     continue;
                 }
                 used.set(j, true);
