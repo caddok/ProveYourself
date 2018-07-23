@@ -1,3 +1,5 @@
+package recursion;
+
 import java.util.*;
 import java.util.stream.Collectors;
 //still not working

@@ -1,4 +1,4 @@
-package codingbat;
+package codingbat1;
 
 public class BunnyEars {
     public static void main(String[] args) {

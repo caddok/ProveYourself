@@ -1,3 +1,5 @@
+package recursion;
+
 public class KthSymbol {
     public static void main(String[] args) {
         int mockNumberOfRows = 4;
