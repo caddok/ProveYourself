@@ -4,20 +4,15 @@ import java.util.stream.Collectors;
 
 public class MessagesInBottle {
     public static HashSet<String> possibleCodes = new HashSet<>();
-    public static ArrayList<Integer> letterCodes = new ArrayList<>();
+    public static ArrayList<String> letterCodes = new ArrayList<>();
     public static ArrayList<String> letters = new ArrayList<>();
-    public static boolean end = false;
 
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
         String secretMessage = in.next();
         String cipher = in.next();
         decryptCipher(cipher);
-        Hashtable<Integer, String> codeTable = new Hashtable<>();
-        for (int i = 0; i < letterCodes.size(); i++) {
-            codeTable.put(letterCodes.get(i), letters.get(i));
-        }
-        solve(secretMessage, codeTable);
+        solve(secretMessage);
         List<String> sortedCodes = possibleCodes.stream().sorted().collect(Collectors.toList());
         if (sortedCodes.size() > 0) {
             System.out.println(sortedCodes.size());
@@ -30,26 +25,42 @@ public class MessagesInBottle {
 
     }
 
-    public static void solve(String secretMessage, Hashtable<Integer, String> codeTable) {
-        int currentLength = 1;
-        for (int i = 0; i < secretMessage.length(); ) {
+    public static void solve(String secretMessage) {
+        for (int i = 0; i < secretMessage.length(); i++) {
             StringBuilder message = new StringBuilder();
-            int currentIndex = i;
-            while (message.length() < currentLength) {
+            int currentIndex = 0;
+            while (message.length() < i + 1) {
                 message.append(secretMessage.charAt(currentIndex));
                 currentIndex++;
             }
-            int code = Integer.parseInt(String.valueOf(message.toString()));
-            if (codeTable.containsKey(code)) {
-
+            if (letterCodes.contains(message.toString())) {
+                StringBuilder current = new StringBuilder();
+                current.append(letters.get(letterCodes.indexOf(message.toString())));
+                getPossibleMessages(secretMessage,currentIndex,1,current);
             }
         }
     }
 
-    public static void extractPossibleMessages(String secretMessage, int index, StringBuilder currentMessage) {
-        int currentLength = 1;
-        for (int i = index; i < secretMessage.length(); i++) {
-
+    public static void getPossibleMessages(String message, int start,
+                                           int currentLength, StringBuilder current) {
+        for (int length = currentLength; length < message.length(); length++) {
+            if (start >= message.length()) {
+                possibleCodes.add(current.toString());
+                return;
+            }
+            StringBuilder builder = new StringBuilder();
+            int currentIndex = start;
+            while (currentIndex < message.length() && builder.length() < length) {
+                builder.append(message.charAt(currentIndex));
+                currentIndex++;
+            }
+            if (letterCodes.contains(builder.toString())) {
+                current.append(letters.get(letterCodes.indexOf(builder.toString())));
+                start += length;
+                getPossibleMessages(message,start,length,current);
+                start -= length;
+                current.deleteCharAt(current.length() - 1);
+            }
         }
     }
 
@@ -68,8 +79,7 @@ public class MessagesInBottle {
                         currentIndex++;
                     }
                 }
-                int code = Integer.parseInt(String.valueOf(number));
-                letterCodes.add(code);
+                letterCodes.add(String.valueOf(number));
                 if (currentIndex == cipher.length() - 1) {
                     i = currentIndex;
                 } else {

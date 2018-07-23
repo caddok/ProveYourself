@@ -5,11 +5,10 @@ import java.util.stream.Collectors;
 //Warning:Very ugly code may demand a translator to be readable!!!
 public class PartitionToEqualSubsets {
     public static boolean isValid;
-    public static boolean isImpossible;
 
     public static void main(String[] args) {
-        int[] mock = {3, 3, 13, 1, 3, 12, 3, 3, 16};
-        int numberOfPartitions = 3;
+        int[] mock = {3522, 181, 521, 515, 304, 123, 2512, 312, 922, 407, 146, 1932, 4037, 2646, 3871, 269};
+        int numberOfPartitions = 5;
         boolean canBe = canPartitionKSubsets(mock, numberOfPartitions);
         System.out.println(canBe);
     }
@@ -17,86 +16,50 @@ public class PartitionToEqualSubsets {
     public static boolean canPartitionKSubsets(int[] nums, int k) {
         int sum = Arrays.stream(nums).sum();
         isValid = false;
-        isImpossible = false;
         if (sum % k > 0) {
             return isValid;
         }
-        boolean[] used = new boolean[nums.length];
         List<Integer> numsAsList = Arrays.stream(nums).boxed().collect(Collectors.toList());
         int targetSum = sum / k;
         Collections.sort(numsAsList, Comparator.naturalOrder());
-        checkValidity((ArrayList<Integer>) numsAsList, k, targetSum, 0, 0, nums.length - 1, used);
+        for (int i = 0; i < k; i++) {
+            isValid = false;
+            checkValidity((ArrayList<Integer>) numsAsList, targetSum, 0, numsAsList.size() - 1, new Hashtable<>());
+            if (!isValid) {
+                break;
+            }
+        }
         return isValid;
     }
 
-    public static void checkValidity(ArrayList<Integer> nums, int partitionCount, int target, int sum, int indexFirst, int indexSecond, boolean[] used) {
-        if (partitionCount == 1) {
-            ArrayList<Integer> leftOver = new ArrayList<>();
-            for (int i = 0; i < used.length; i++) {
-                if (!used[i]) {
-                    leftOver.add(nums.get(i));
-                }
+    public static void checkValidity(ArrayList<Integer> nums, int target, int sum, int lastIndex, Map<Integer, Integer> used) {
+        for (int i = lastIndex; i >= 0; i--) {
+            if (isValid) {
+                break;
             }
-            if (sumItUp(leftOver) + sum == target) {
+            if (used.containsKey(i)) {
+                continue;
+            }
+            sum += nums.get(i);
+            if (sum < target) {
+                used.put(i, nums.get(i));
+                checkValidity(nums, target, sum, i - 1, used);
+                if (!isValid) {
+                    used.remove(i, nums.get(i));
+                    sum -= nums.get(i);
+                }
+            } else if (sum == target) {
                 isValid = true;
-            }
-        } else if (sum == target) {
-            --partitionCount;
-        } else if (sum > target) {
-            isImpossible = true;
-            return;
-        } else if (sum == 0) {
-            while (used[indexSecond]) {
-                --indexSecond;
-            }
-            sum += nums.get(indexSecond);
-            used[indexSecond] = true;
-            checkValidity(nums, partitionCount, target, sum, indexFirst, --indexSecond, used);
-        } else if (sum > 0 && sum < target && nums.contains(target - sum) && nums.indexOf(target - sum) < nums.size() - 1) {
-            int targetNum = target - sum;
-            int index = nums.indexOf(target - sum);
-            while (nums.get(index) == targetNum && used[index]) {
-                index++;
-                if (nums.get(index) != targetNum) {
-                    isImpossible = true;
-                    break;
+                used.put(i, nums.get(i));
+                for (Integer element : used.values()) {
+                    nums.remove(new Integer(element));
                 }
+                break;
+            } else {
+                sum -= nums.get(i);
             }
-            sum += nums.get(index);
-            used[index] = true;
-            checkValidity(nums, partitionCount, target, sum, indexFirst, indexSecond, used);
-        } else {
-            while (used[indexFirst]) {
-                ++indexFirst;
-            }
-            int nextNotUsedIndex = indexFirst + 1;
-            while (used[nextNotUsedIndex] && nextNotUsedIndex < nums.size() - 1) {
-                ++nextNotUsedIndex;
-            }
-            int tryNext = sum + nums.get(nextNotUsedIndex);
-            if (tryNext > sum + nums.get(indexFirst)) {
-                indexFirst = nextNotUsedIndex;
-            }
-            sum += nums.get(indexFirst);
-            used[indexFirst] = true;
-            checkValidity(nums, partitionCount, target, sum, indexFirst, indexSecond, used);
         }
-        if (isValid) {
-            return;
-        }
-        if (isImpossible) {
-            return;
-        }
-        sum = 0;
-        checkValidity(nums, partitionCount, target, sum, indexFirst, indexSecond, used);
     }
 
-    public static int sumItUp(ArrayList<Integer> toSum) {
-        int sum = 0;
-        for (Integer num : toSum) {
-            sum += num;
-        }
-        return sum;
-    }
 
 }
