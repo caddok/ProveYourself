@@ -21,12 +21,12 @@ public class NumberOfIslandsDFS {
                 if (grid[i][j] == '0') {
                     continue;
                 }
-                if (used.contains(i + ";" + j)){
+                if (used.contains(i + ";" + j)) {
                     continue;
                 }
-                used.add(i + ";" + j);
-                dfs(i, j, grid,used);
                 ++result;
+                used.add(i + ";" + j);
+                dfs(i, j, grid, used);
             }
         }
         return result;
@@ -49,7 +49,7 @@ public class NumberOfIslandsDFS {
                 continue;
             }
             used.add(newRow + ";" + newCol);
-            dfs(newRow,newCol,grid,used);
+            dfs(newRow, newCol, grid, used);
         }
     }
 }

@@ -1,10 +1,12 @@
 package recursion;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Scanner;
 import java.util.stream.Collectors;
-//still not working
-
-public class MessagesInBottle {
+//solved with Konstantin;TLE for 1 to 3 cases.
+public class MessagesNewWay {
     public static HashSet<String> possibleCodes = new HashSet<>();
     public static ArrayList<String> letterCodes = new ArrayList<>();
     public static ArrayList<String> letters = new ArrayList<>();
@@ -27,40 +29,17 @@ public class MessagesInBottle {
     }
 
     public static void solve(String secretMessage) {
-        for (int i = 0; i < secretMessage.length(); i++) {
-            StringBuilder message = new StringBuilder();
-            int currentIndex = 0;
-            while (message.length() < i + 1) {
-                message.append(secretMessage.charAt(currentIndex));
-                currentIndex++;
-            }
-            if (letterCodes.contains(message.toString())) {
-                StringBuilder current = new StringBuilder();
-                current.append(letters.get(letterCodes.indexOf(message.toString())));
-                getPossibleMessages(secretMessage,currentIndex,1,current);
-            }
-        }
+        getPossibleMessages(secretMessage,"");
     }
 
-    public static void getPossibleMessages(String message, int start,
-                                           int currentLength, StringBuilder current) {
-        for (int length = currentLength; length < message.length(); length++) {
-            if (start >= message.length()) {
-                possibleCodes.add(current.toString());
-                return;
-            }
-            StringBuilder builder = new StringBuilder();
-            int currentIndex = start;
-            while (currentIndex < message.length() && builder.length() < length) {
-                builder.append(message.charAt(currentIndex));
-                currentIndex++;
-            }
-            if (letterCodes.contains(builder.toString())) {
-                current.append(letters.get(letterCodes.indexOf(builder.toString())));
-                start += length;
-                getPossibleMessages(message,start,length,current);
-                start -= length;
-                current.deleteCharAt(current.length() - 1);
+    private static void getPossibleMessages(String message, String current) {
+        if (message.length() == 0) {
+            possibleCodes.add(current);
+        }
+        for (int i = 1; i <= message.length(); i++) {
+            int indexOfHead = letterCodes.indexOf(message.substring(0,i));
+            if (indexOfHead != -1) {
+                getPossibleMessages(message.substring(i),current + letters.get(indexOfHead));
             }
         }
     }
@@ -90,4 +69,3 @@ public class MessagesInBottle {
         }
     }
 }
-

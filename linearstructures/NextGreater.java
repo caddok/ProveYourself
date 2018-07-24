@@ -3,8 +3,8 @@ package linearstructures;
 import java.util.*;
 public class NextGreater {
     public static void main(String[] args) {
-        int[] mockFirst = {4,1,2};
-        int[] mockSecond = {1,3,4,2};
+        int[] mockFirst = {1,5,3,4,7};
+        int[] mockSecond = {6,5,4,3,2,1,7};
         int[] result = nextGreaterElement(mockFirst, mockSecond);
         for (int i : result) {
             System.out.println(i);
