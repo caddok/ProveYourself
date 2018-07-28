@@ -1,3 +1,4 @@
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -8,71 +9,87 @@ interface HeroDatabase {
 
     List<Hero> find(String nameOrType);
 
-    PriorityQueue<Hero> getHeroesOrderedByPower();
+    List<Hero> getHeroesOrderedByPower(int count);
 }
 
 public class UnitsOfWork {
     private static final String SUCCESS = "SUCCESS:";
     private static final String FAIL = "FAIL:";
     private static final String RESULT = "RESULT:";
+    private static final StringBuilder result = new StringBuilder();
 
-    public static void main(String[] args) {
-        Scanner in = new Scanner(System.in);
-        String commandString = in.nextLine();
+    public static void main(String[] args) throws IOException {
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+        String commandString = in.readLine();
+        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new
+                FileOutputStream(java.io.FileDescriptor.out), "ASCII"), 512);
         HeroDatabase database = new DefaultHeroDatabase();
         while (!commandString.equals("end")) {
             String[] brokenDown = commandString.split(" ");
             switch (brokenDown[0]) {
                 case "add":
-                    Hero hero = new Hero();
                     if (database.addHero(brokenDown)) {
-                        System.out.println(SUCCESS + " " + brokenDown[1] + " added!");
+                        out.write(SUCCESS);
+                        out.write(" ");
+                        out.write(brokenDown[1]);
+                        out.write(" added!");
+                        out.write("\n");
                     } else {
-                        System.out.println(FAIL + " " + brokenDown[1] + " already exists!");
+                        out.write(FAIL);
+                        out.write(" ");
+                        out.write(brokenDown[1]);
+                        out.write(" already exists!");
+                        out.write("\n");
                     }
                     break;
                 case "remove":
                     String nameToRemove = brokenDown[1];
                     if (database.remove(nameToRemove)) {
-                        System.out.println(SUCCESS + " " + nameToRemove + " removed!");
+
+                        out.write(SUCCESS);
+                        out.write(" ");
+                        out.write(brokenDown[1]);
+                        out.write(" removed!");
+                        out.write("\n");
+
                     } else {
-                        System.out.println(FAIL + " " + nameToRemove + " could not be found!");
+
+                        out.write(FAIL);
+                        out.write(" ");
+                        out.write(brokenDown[1]);
+                        out.write(" could not be found!");
+                        out.write("\n");
                     }
                     break;
                 case "find":
                     List<Hero> found = database.find(brokenDown[1]);
                     if (found.size() > 0) {
-                        System.out.print(RESULT + " ");
+                        out.write(RESULT);
+                        out.write(" ");
                         for (int i = 0; i < found.size(); i++) {
-                            if (i == found.size() - 1) {
-                                System.out.print(found.get(i).toString());
-                            } else {
-                                System.out.print(found.get(i).toString() + ", ");
-                            }
+                            out.write(found.get(i).toString());
+                            out.write(i == found.size() - 1 ? "\n" : ", ");
                         }
-                        System.out.println();
                     } else {
-                        System.out.println(RESULT + " ");
+                        out.write(RESULT);
+                        out.write(" ");
+                        out.write("\n");
                     }
                     break;
                 case "power":
-                    PriorityQueue<Hero> copied = new PriorityQueue<>(database.getHeroesOrderedByPower());
-                    System.out.print(RESULT + " ");
-                    int size = Integer.parseInt(brokenDown[1]);
-                    for (int i = 0; i < size; i++) {
-                        Hero heroToShow = copied.peek();
-                        if (i == size - 1) {
-                            System.out.print(heroToShow.toString());
-                        } else {
-                            System.out.print(heroToShow.toString() + ", ");
-                        }
-                        copied.remove();
+                    List<Hero> heroesByPower = database.getHeroesOrderedByPower(Integer.parseInt(brokenDown[1]));
+                    out.write(RESULT);
+                    out.write(" ");
+                    for (int i = 0; i < heroesByPower.size(); i++) {
+                        Hero heroToShow = heroesByPower.get(i);
+                        out.write(heroToShow.toString());
+                        out.write(i == heroesByPower.size() - 1 ? "\n" : ", ");
                     }
-                    System.out.println();
                     break;
             }
-            commandString = in.nextLine();
+            commandString = in.readLine();
         }
+        out.flush();
     }
 }
 
@@ -91,6 +108,10 @@ class Hero implements Comparable<Hero> {
         setName(name);
         setType(type);
         setAttack(attack);
+    }
+
+    public Hero(String name) {
+        setName(name);
     }
 
     public String getName() {
@@ -124,7 +145,11 @@ class Hero implements Comparable<Hero> {
 
     @Override
     public int compareTo(Hero other) {
-        return this.getAttack() - other.getAttack();
+        if (this.getAttack() != other.getAttack()) {
+            return other.getAttack() - this.getAttack();
+        }
+
+        return this.getName().compareTo(other.getName());
     }
 
     @Override
@@ -142,76 +167,87 @@ class Hero implements Comparable<Hero> {
 }
 
 class DefaultHeroDatabase implements HeroDatabase {
-    private Map<String, SortedSet<Hero>> heroesByTypeSortedByPower;
-    private Set<Hero> allHeroes;
-    private PriorityQueue<Hero> heroesOrderedByPower;
+    private Map<String, Hero> allHeroes;
+    private Set<Hero> heroesByPower;
+    private Map<String, Set<Hero>> heroesByTypeSortedByPower;
 
     public DefaultHeroDatabase() {
-        heroesByTypeSortedByPower = new Hashtable<>();
-        allHeroes = new HashSet<>();
-        heroesOrderedByPower = new PriorityQueue<>(Comparator.comparing(Hero::getAttack).reversed());
+        allHeroes = new HashMap<>();
+        heroesByPower = new TreeSet<>();
+        heroesByTypeSortedByPower = new HashMap<>();
     }
 
     @Override
-    public PriorityQueue<Hero> getHeroesOrderedByPower() {
-        return new PriorityQueue<>(heroesOrderedByPower);
+    public List<Hero> getHeroesOrderedByPower(int count) {
+        return heroesByPower.parallelStream()
+                .limit(count)
+                .collect(Collectors.toList());
     }
 
     @Override
     public boolean addHero(String[] characteristics) {
         Hero hero = new Hero(characteristics[1], characteristics[2], Integer.parseInt(characteristics[3]));
-        if (allHeroes.contains(hero)) {
-            return false;
-        }
+        Hero result = allHeroes.putIfAbsent(hero.getName(), hero);
 
-        allHeroes.add(hero);
-        if (heroesByTypeSortedByPower.containsKey(hero.getType())) {
-            heroesByTypeSortedByPower.get(characteristics[2]).add(hero);
-        } else {
-            heroesByTypeSortedByPower.put(hero.getType(), new TreeSet<>());
-            heroesByTypeSortedByPower.get(hero.getType()).add(hero);
+        if (result == null) {
+            heroesByPower.add(hero);
+            heroesByTypeSortedByPower.putIfAbsent(hero.getType(), new TreeSet<>());
+            heroesByTypeSortedByPower.computeIfPresent(hero.getType(), (k, v) -> {
+                v.add(hero);
+                return v;
+            });
+            return true;
         }
-        allHeroes.add(hero);
-        heroesOrderedByPower.offer(hero);
-        return true;
-
+        return false;
     }
 
     @Override
     public boolean remove(String name) {
-        allHeroes.removeIf(hero -> hero.getName().equals(name));
-        heroesByTypeSortedByPower.
-        heroesOrderedByPower.remove(hero.get(0));
+        boolean existsInMap = allHeroes.containsKey(name);
+
+        if (existsInMap) {
+            Hero toBeRemoved = allHeroes.get(name);
+            allHeroes.remove(name);
+            heroesByTypeSortedByPower.get(toBeRemoved.getType()).remove(toBeRemoved);
+            heroesByPower.remove(toBeRemoved);
+        }
+        return existsInMap;
     }
 
     @Override
     public List<Hero> find(String nameOrType) {
-        if (isHeroName(nameOrType)) {
-            return allHeroes.stream()
-                    .filter(hero -> hero.getName().equals(nameOrType))
-                    .collect(Collectors.toList());
-        } else {
+        if (isType(nameOrType)) {
             return findFromType(nameOrType);
+        } else if (isHeroName(nameOrType)) {
+            Hero res = allHeroes.get(nameOrType);
+            List<Hero> resList = new ArrayList<>();
+            resList.add(res);
+            return resList;
+        } else {
+            return new ArrayList<>();
         }
     }
 
+    private boolean isType(String nameOrType) {
+        return heroesByTypeSortedByPower.containsKey(nameOrType);
+    }
+
     private boolean isHeroName(String name) {
-        return heroNames.contains(name);
+        return allHeroes.containsKey(name);
     }
 
     private List<Hero> findFromType(String type) {
-        PriorityQueue<Hero> specificList;
-        if (!heroesByTypeSortedByPower.containsKey(type)) {
+        if (heroesByTypeSortedByPower.get(type).size() == 0) {
             return new ArrayList<>();
+        } else if (heroesByTypeSortedByPower.get(type).size() < 10) {
+            return new ArrayList<>(heroesByTypeSortedByPower.get(type));
         } else {
-            specificList = heroesByTypeSortedByPower.get(type);
-            if (specificList.size() > 10) {
-                return specificList.stream()
-                        .limit(10)
-                        .collect(Collectors.toList());
-            } else {
-                return new ArrayList<>(new ArrayList<>(specificList));
-            }
+            return heroesByTypeSortedByPower
+                    .get(type)
+                    .parallelStream()
+                    .filter(e -> allHeroes.containsKey(e.getName()))
+                    .limit(10)
+                    .collect(Collectors.toList());
         }
     }
 }

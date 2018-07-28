@@ -1,15 +1,23 @@
 package linearstructures;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
-//TODO:Comment in home for time limit
+
 public class CokiSkoki {
-    public static void main(String[] args) {
-        Scanner in = new Scanner(System.in);
-        int numberOfBuildings = in.nextInt();
+    public static void main(String[] args) throws IOException {
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+
+        int numberOfBuildings = Integer.parseInt(in.readLine());
+
+        String[] buildingHeightsString = in.readLine().split(" ");
+
         int[] buildingHeights = new int[numberOfBuildings];
+
         ArrayList<Integer> results = new ArrayList<>();
         for (int i = 0; i < numberOfBuildings; i++) {
-            buildingHeights[i] = in.nextInt();
+            buildingHeights[i] = Integer.parseInt(buildingHeightsString[i]);
             results.add(i,0);
         }
         results.set(buildingHeights.length - 1,0);
