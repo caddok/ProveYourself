@@ -1,8 +1,5 @@
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 interface SupermarketDatabase {
@@ -101,7 +98,7 @@ class Supermarket implements SupermarketDatabase {
 
     public Supermarket() {
         countOfPersonsByName = new HashMap<>();
-        queue = new ArrayList<>();
+        queue = new LinkedList<>();
     }
 
     @Override
