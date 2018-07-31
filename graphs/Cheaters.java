@@ -94,23 +94,29 @@ public class Cheaters {
         // the current person to the result stack.
         sorted.push(person);
     }
-}
+    static class Vertex {
+        private String to;
+        private String subject;
 
-//The structure needed for the graph
-class Vertex {
-    private String to;
-    private String subject;
+        Vertex(String to, String subject) {
+            this.to = to;
+            this.subject = subject;
+        }
 
-    Vertex(String to, String subject) {
-        this.to = to;
-        this.subject = subject;
-    }
+        public String getTo() {
+            return to;
+        }
 
-    public String getSubject() {
-        return subject;
-    }
+        public void setTo(String to) {
+            this.to = to;
+        }
 
-    public String getTo() {
-        return to;
+        public String getSubject() {
+            return subject;
+        }
+
+        public void setSubject(String subject) {
+            this.subject = subject;
+        }
     }
 }

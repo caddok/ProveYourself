@@ -7,6 +7,7 @@ public class Actions {
     public static Stack<Integer> result;
     public static Set<Integer> visited;
     public static Map<Integer, Integer> parentNodeCount;
+
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
         int allActions = in.nextInt();
@@ -19,21 +20,21 @@ public class Actions {
             String[] actions = in.nextLine().split(" ");
             Integer potentialParent = Integer.parseInt(actions[0]);
             Integer potentialChild = Integer.parseInt(actions[1]);
-            graph.putIfAbsent(potentialParent,new TreeSet<>());
-            graph.computeIfPresent(potentialParent,(v, k) ->
+            graph.putIfAbsent(potentialParent, new TreeSet<>());
+            graph.computeIfPresent(potentialParent, (v, k) ->
             {
                 k.add(potentialChild);
                 return k;
             });
-            parentNodeCount.putIfAbsent(potentialParent,0);
-            parentNodeCount.putIfAbsent(potentialChild,0);
-            parentNodeCount.computeIfPresent(potentialChild,(k,v)-> v + 1);
+            parentNodeCount.putIfAbsent(potentialParent, 0);
+            parentNodeCount.putIfAbsent(potentialChild, 0);
+            parentNodeCount.computeIfPresent(potentialChild, (k, v) -> v + 1);
         }
         result = new Stack<>();
         visited = new HashSet<>();
         for (int i = 0; i < allActions; i++) {
-            graph.putIfAbsent(i,new TreeSet<>());
-            parentNodeCount.putIfAbsent(i,0);
+            graph.putIfAbsent(i, new TreeSet<>());
+            parentNodeCount.putIfAbsent(i, 0);
         }
         genocideSort();
         ArrayList<Integer> printResult = new ArrayList<>(result);
@@ -50,8 +51,8 @@ public class Actions {
                     result.add(node.getKey());
                     parentKey = node.getKey();
                     for (Integer child : graph.get(node.getKey())) {
-                        parentNodeCount.computeIfPresent(child,(k,v)-> {
-                            if(v == 0) {
+                        parentNodeCount.computeIfPresent(child, (k, v) -> {
+                            if (v == 0) {
                                 return 0;
                             } else {
                                 return v - 1;
